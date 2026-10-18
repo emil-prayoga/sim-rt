@@ -1,1 +1,0 @@
-  console.log("=== APAKAH SUPABASE AKTIF? ===", supabase ? "YA (Supabase)" : "TIDAK (Mode Demo)");

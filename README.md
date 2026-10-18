@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SiRT — Portal Administrasi RT
 
-## Getting Started
+Portal Next.js untuk ringkasan lingkungan, data kartu keluarga, keuangan/iuran, dan verifikasi surat. Antarmuka mengikuti referensi di `design/`; data contoh tersedia saat konfigurasi Supabase belum diisi.
 
-First, run the development server:
+## Menjalankan aplikasi
 
 ```bash
+npm install
+Copy-Item .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Isi `.env.local` dengan Project URL dan publishable/anon key dari Supabase. Jangan pernah menaruh `service_role` key di variabel `NEXT_PUBLIC_*` atau di browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Menyiapkan Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Jalankan SQL dari `supabase/migrations/202610140001_initial_schema.sql` lewat Supabase CLI (`supabase db push`) atau SQL Editor.
+2. Buat akun pengelola RT di **Authentication → Users**. Portal hanya mengizinkan sesi pengguna yang sudah terautentikasi; pembuatan akun publik tidak dibuka.
+3. Tabel memakai Row Level Security. Policy awal memberi akses CRUD kepada peran `authenticated`. Untuk lingkungan produksi dengan beberapa RT, batasi policy per RT memakai membership/role dan `rt_id` sebelum memasukkan data asli.
 
-## Learn More
+Tanpa kredensial Supabase, aplikasi memakai data demo dan menyimpan perubahan di browser lokal.
 
-To learn more about Next.js, take a look at the following resources:
+### Akun demo lokal
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Jika variabel Supabase tidak diisi, halaman login menerima akun demo berikut. Sesi demo hanya berlaku di browser saat ini dan data demo yang diedit disimpan di `localStorage` browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Email: `admin@sirt.demo`
+- Password: `SirtDemo04!`
 
-## Deploy on Vercel
+Akun ini tidak dibuat pada Supabase Auth dan tidak berlaku saat Supabase dikonfigurasi. Untuk login Supabase, buat akun admin dari Supabase Dashboard.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Route
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/` — Ringkasan & dashboard
+- `/warga` — Data warga dan KK
+- `/keuangan` — Rekap iuran, buku kas, dan pencatatan transaksi
+- `/surat` — Antrean dan keputusan surat pengantar
+
+Halaman warga dan keuangan mendukung penambahan, pengeditan, penghapusan, serta ekspor CSV. Hapus data warga meminta konfirmasi dan menghapus anggota keluarga/tagihan terkait sesuai foreign key cascade.
+
+Formulir memakai skema Zod bersama. Klien Supabase memakai publishable key dan RLS; autentikasi email/kata sandi disimpan oleh Supabase Auth.

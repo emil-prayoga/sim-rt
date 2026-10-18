@@ -4,6 +4,7 @@ import {
   demoAnggota,
   demoBlokIuran,
   demoDashboardStats,
+  buildDemoTrend,
   demoIuran,
   demoKas,
   demoKeuangan,
@@ -27,6 +28,7 @@ import type {
   SuratPengantar,
   SuratData,
   SuratStatus,
+  TrendBulan,
   Warga,
   WargaData,
   WargaStats,
@@ -382,7 +384,8 @@ export async function fetchKeuanganData(): Promise<KeuanganData> {
       tunggakan: demoKeuangan.tunggakan,
       tunggakanKk: demoKeuangan.tunggakanKk,
       transaksiTerverifikasi: demoKeuangan.transaksiTerverifikasi,
-      periodeLabel
+      periodeLabel,
+      trend: buildDemoTrend(),
     };
   }
 

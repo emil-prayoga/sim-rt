@@ -214,6 +214,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                   name="email"
                   type="email"
                   autoComplete="username"
+                  defaultValue={access === "demo-signed-out" ? DEMO_EMAIL : undefined}
                   placeholder={
                     access === "demo-signed-out" ? DEMO_EMAIL : "nama@email.com"
                   }
@@ -236,6 +237,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
+                  defaultValue={access === "demo-signed-out" ? DEMO_PASSWORD : undefined}
                   placeholder="••••••••"
                   className="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1D4533]/20 focus:border-[#1D4533] transition-all"
                 />

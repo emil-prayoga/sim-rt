@@ -2,7 +2,7 @@ import {
   Activity, AlertCircle, ArrowDownLeft, ArrowRight, ArrowUpRight, BadgeCheck, Check, Download, Pencil, Plus, Trash2, X,
   Building2, CalendarDays, CircleCheck, CircleUserRound, FileText, House,
   Inbox, Landmark, LoaderCircle, Megaphone, Search, Settings2, ShieldCheck, UsersRound,
-  Wallet, type LucideIcon,
+  Wallet, type LucideIcon, Menu,
   LogOut,
 } from "lucide-react";
 
@@ -35,6 +35,7 @@ const iconMap: Record<string, LucideIcon> = {
   edit: Pencil,
   delete: Trash2,
   logout: LogOut,
+  menu: Menu,
 
 };
 

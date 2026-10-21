@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { NAV_ITEMS, type NavKey } from "@/lib/nav";
 import { UiIcon } from "@/components/ui-icon";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -15,6 +16,31 @@ const MOBILE_NAV_LABELS: Record<NavKey, string> = {
 
 export function ResponsiveSidebar({ active }: ResponsiveSidebarProps) {
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [motionReady, setMotionReady] = useState(false);
+  const [animateEntry, setAnimateEntry] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const entryHandled = useRef(false);
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 760px)");
+    const updateViewport = () => setIsMobile(mobileQuery.matches);
+    updateViewport();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMotionReady(true);
+    mobileQuery.addEventListener("change", updateViewport);
+    return () => mobileQuery.removeEventListener("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
+    if (entryHandled.current) return;
+    entryHandled.current = true;
+
+    const shouldAnimateEntry = window.sessionStorage.getItem("sirt-sidebar-entry") === "pending";
+    if (shouldAnimateEntry) window.sessionStorage.removeItem("sirt-sidebar-entry");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAnimateEntry(shouldAnimateEntry && window.location.pathname === "/" && !window.matchMedia("(max-width: 760px)").matches);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -35,7 +61,15 @@ export function ResponsiveSidebar({ active }: ResponsiveSidebarProps) {
       </button>
       {open && <button type="button" className="sidebar-scrim"
         aria-label="Tutup menu navigasi" onClick={() => setOpen(false)} />}
-      <aside id="main-sidebar" className={`app-sidebar${open ? " is-open" : ""}`} aria-label="Menu utama">
+      <motion.aside
+        id="main-sidebar"
+        className={`app-sidebar${motionReady ? " motion-ready" : ""}`}
+        aria-label="Menu utama"
+        initial={false}
+        animate={animateEntry ? { x: [-96, 0] } : { x: isMobile ? (open ? 0 : "-105%") : 0 }}
+        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 190, damping: 28, mass: 1.25 }}
+        onAnimationComplete={() => { if (animateEntry) setAnimateEntry(false); }}
+      >
         <div className="sidebar-top">
           <div className="sidebar-brand ">
             <div className="sidebar-brand-icon"><UiIcon name="location_city" /></div>
@@ -72,7 +106,7 @@ export function ResponsiveSidebar({ active }: ResponsiveSidebarProps) {
           </div>
           <SignOutButton />
         </div>
-      </aside>
+      </motion.aside>
     </>
   );
 }

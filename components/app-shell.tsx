@@ -2,6 +2,7 @@
 import type { NavKey } from "@/lib/nav";
 import { PeriodChip } from "@/components/period-chip";
 import { ResponsiveSidebar } from "@/components/responsive-sidebar";
+import { DashboardEntryHeader } from "@/components/dashboard-entry-header";
 
 type AppShellProps = {
   active: NavKey;
@@ -14,7 +15,7 @@ export async function AppShell({ active, children }: AppShellProps) {
     <div className="h-screen w-screen flex overflow-hidden bg-background">
       <ResponsiveSidebar active={active} />
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-y-auto">
-        <header className="shell-header sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shrink-0">
+        <DashboardEntryHeader className="shell-header sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shrink-0">
           <div className="shell-header-inner px-space-lg py-space-sm flex items-center justify-between">
             <div className="shell-identity">
               <div>
@@ -26,7 +27,7 @@ export async function AppShell({ active, children }: AppShellProps) {
               <span className="shell-period"><PeriodChip /></span>
             </div>
           </div>
-        </header>
+        </DashboardEntryHeader>
 
         <main className="flex-1 px-space-lg py-space-lg flex flex-col gap-space-lg">
           {children}

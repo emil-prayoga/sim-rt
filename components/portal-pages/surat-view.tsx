@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/page-header";
+import { CountUp } from "@/components/count-up";
+import { DirectionalMotion } from "@/components/directional-motion";
 import { Toast } from "@/components/toast";
 import { UiIcon } from "@/components/ui-icon";
 import { fetchSuratData } from "@/lib/data";
@@ -65,8 +67,8 @@ export function SuratClient() {
 
   return (
     <div className="portal-content">
-      <PageHeader title="Surat Pengantar & Administrasi" description="Tinjau permohonan warga dan kelola proses penerbitan surat." />
-      {loading && <div className="callout bg-background shadow-sm rounded-xl">Memuat antrean surat…</div>}
+      <DirectionalMotion direction="up"><PageHeader title="Surat Pengantar & Administrasi" description="Tinjau permohonan warga dan kelola proses penerbitan surat." /></DirectionalMotion>
+      {loading && <div></div>}
       {error && (
         <div className="callout error-callout shadow-sm rounded-xl">
           {error}
@@ -106,15 +108,15 @@ function LetterQueue({
           ["Diterbitkan", data.surat.filter((x) => x.status === "disetujui").length],
           ["Perlu dilengkapi", data.surat.filter((x) => x.status === "revisi").length],
           ["Total permohonan", data.surat.length],
-        ].map(([l, v]) => (
-          <article className="stat-card shadow-sm border-0 rounded-2xl bg-white p-4" key={l}>
+        ].map(([l, v], index) => (
+          <DirectionalMotion as="article" direction={(["left", "up", "down", "right"] as const)[index]} delay={index * 0.035} className="stat-card shadow-sm border-0 rounded-2xl bg-white p-4" key={l}>
             <span className="stat-label">{l}</span>
-            <strong>{v}</strong>
-          </article>
+            <strong><CountUp value={Number(v)} /></strong>
+          </DirectionalMotion>
         ))}
       </div>
       <div className="letter-layout">
-        <section className="panel shadow-sm border-0 rounded-2xl bg-white p-5">
+        <DirectionalMotion as="section" direction="left" className="panel shadow-sm border-0 rounded-2xl bg-white p-5">
           <div className="panel-title">
             <h2>Antrean permohonan</h2>
             <span>{pending.length} aktif</span>
@@ -147,14 +149,14 @@ function LetterQueue({
             ))}
             {!data.surat.length && <div className="empty">Belum ada permohonan.</div>}
           </div>
-        </section>
-        <section className="panel letter-preview shadow-sm border-0 rounded-2xl bg-white p-5">
+        </DirectionalMotion>
+        <DirectionalMotion as="section" direction="right" className="panel letter-preview shadow-sm border-0 rounded-2xl bg-white p-5">
           {active ? (
             <Letter surat={active} busy={busy} pending={pending.includes(active)} decide={decide} />
           ) : (
             <div className="empty">Pilih surat untuk pratinjau.</div>
           )}
-        </section>
+        </DirectionalMotion>
       </div>
     </>
   );

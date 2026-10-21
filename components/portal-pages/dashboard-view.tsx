@@ -6,6 +6,8 @@ import { formatRupiah } from "@/lib/format";
 import type { DashboardData } from "@/lib/types";
 import { PageHeader } from "@/components/page-header";
 import { UiIcon } from "@/components/ui-icon";
+import { CountUp } from "@/components/count-up";
+import { DirectionalMotion } from "@/components/directional-motion";
 
 export function DashboardClient() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -25,10 +27,9 @@ export function DashboardClient() {
 
   return (
     <div className="portal-content">
-      <PageHeader title="Ringkasan & Dashboard" description="Pantau data warga, kas, surat, dan kegiatan RT dalam satu tampilan." />
+      <DirectionalMotion direction="up"><PageHeader title="Ringkasan & Dashboard" description="Pantau data warga, kas, surat, dan kegiatan RT dalam satu tampilan." /></DirectionalMotion>
       {loading && (
-        <div className="p-4 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant text-sm shadow-sm">
-          Memuat data administrasi…
+        <div>
         </div>
       )}
       {error && (
@@ -50,15 +51,15 @@ export function DashboardClient() {
 function DashboardOverview({ data }: { data: DashboardData }) {
   const { stats, suratAntrean, blokIuran, aduan, ronda } = data;
   const metrics = [
-    { label: "Total warga", value: stats.totalJiwa.toLocaleString("id-ID"), detail: "Penduduk terdata", prominence: "primary" },
-    { label: "Kepala keluarga", value: stats.totalKk.toLocaleString("id-ID"), detail: `${stats.kkTetap} tetap · ${stats.kkKontrak} kontrak` },
-    { label: "Kas RT tersedia", value: formatRupiah(stats.kasSaldo), detail: `${stats.pemasukanPersen}% target bulanan`, prominence: "primary" },
-    { label: "Surat menunggu", value: stats.suratMenunggu.toLocaleString("id-ID"), detail: `${stats.suratBaruHariIni} pengajuan hari ini` }
+    { label: "Total warga", value: stats.totalJiwa, detail: "Penduduk terdata" },
+    { label: "Kepala keluarga", value: stats.totalKk, detail: `${stats.kkTetap} tetap · ${stats.kkKontrak} kontrak` },
+    { label: "Kas RT tersedia", value: stats.kasSaldo, format: "rupiah" as const, detail: `${stats.pemasukanPersen}% target bulanan` },
+    { label: "Surat menunggu", value: stats.suratMenunggu, detail: `${stats.suratBaruHariIni} pengajuan hari ini` }
   ];
 
   return (
     <div className="dashboard-overview">
-      <section className="dashboard-welcome">
+      <DirectionalMotion as="section" direction="up" className="dashboard-welcome">
         <div className="flex flex-col gap-2 z-10">
           <h2>
             Selamat bertugas,<br />Bpk. Bambang Sutrisno
@@ -80,21 +81,21 @@ function DashboardOverview({ data }: { data: DashboardData }) {
             <strong>{data.periodeLabel}</strong>
           </div>
         </div>
-      </section>
+      </DirectionalMotion>
 
-      <div className="dashboard-metrics" role="group" aria-label="Ringkasan administrasi">
-        {metrics.map(({ label, value, detail, prominence }) => (
-          <article className={prominence ? "dashboard-metric-primary" : "dashboard-metric-supporting"} key={label}>
-            <span>{label}</span>
-            <strong>{value}</strong>
+      <div className="stat-grid compact-stats" role="group" aria-label="Ringkasan administrasi">
+        {metrics.map(({ label, value, format, detail }, index) => (
+          <DirectionalMotion as="article" direction={(["left", "up", "down", "right"] as const)[index]} delay={index * 0.035} className="stat-card" key={label}>
+            <span className="stat-label">{label}</span>
+            <strong><CountUp value={value} format={format} replayOnNavigation /></strong>
             <small>{detail}</small>
-          </article>
+          </DirectionalMotion>
         ))}
       </div>
 
       {/* Grid 2 Kolom: Surat & Realisasi Iuran */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="dashboard-panel">
+        <DirectionalMotion as="section" direction="left" className="dashboard-panel">
           <PanelTitle title="Antrean surat pengantar" href="/surat" action="Lihat semua" />
           <div className="flex flex-col divide-y divide-outline-variant/20">
             {suratAntrean.slice(0, 6).map((item) => (
@@ -113,9 +114,9 @@ function DashboardOverview({ data }: { data: DashboardData }) {
             ))}
             {suratAntrean.length === 0 && <Empty>Belum ada surat yang menunggu.</Empty>}
           </div>
-        </section>
+        </DirectionalMotion>
 
-        <section className="dashboard-panel">
+        <DirectionalMotion as="section" direction="right" className="dashboard-panel">
           <PanelTitle title="Realisasi iuran per blok" href="/keuangan" action="Detail keuangan" />
           {blokIuran.length ? (
             <div className="grid grid-cols-4 gap-3 pt-2" role="img" aria-label="Grafik realisasi iuran per blok">
@@ -137,12 +138,12 @@ function DashboardOverview({ data }: { data: DashboardData }) {
           ) : (
             <Empty>Data realisasi iuran belum tersedia.</Empty>
           )}
-        </section>
+        </DirectionalMotion>
       </div>
 
       {/* Grid 2 Kolom: Pengaduan & Jadwal Ronda */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="dashboard-panel">
+        <DirectionalMotion as="section" direction="left" className="dashboard-panel">
           <PanelTitle title="Pengaduan fasilitas" href="/pengaduan" action="Lihat semua" />
           <div className="flex flex-col divide-y divide-outline-variant/20">
             {aduan.slice(0, 6).map((item) => (
@@ -161,9 +162,9 @@ function DashboardOverview({ data }: { data: DashboardData }) {
             ))}
             {aduan.length === 0 && <Empty>Tidak ada pengaduan aktif.</Empty>}
           </div>
-        </section>
+        </DirectionalMotion>
 
-        <section className="dashboard-panel">
+        <DirectionalMotion as="section" direction="right" className="dashboard-panel">
           <PanelTitle title="Jadwal ronda" action={ronda.shiftLabel} />
           <div className="flex items-center justify-between bg-surface-container-low px-3.5 py-2.5 rounded-xl border border-outline-variant/20">
             <span className="text-xs font-medium text-on-surface-variant flex items-center gap-1.5">
@@ -179,7 +180,7 @@ function DashboardOverview({ data }: { data: DashboardData }) {
               </div>
             ))}
           </div>
-        </section>
+        </DirectionalMotion>
       </div>
     </div>
   );

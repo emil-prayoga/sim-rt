@@ -10,6 +10,8 @@ import { deleteKepalaKeluarga, insertKepalaKeluarga, updateKepalaKeluarga } from
 import { downloadCsv } from "@/lib/csv";
 import { addKepalaKeluargaSchema, zodFieldErrors } from "@/lib/validation";
 import type { Warga, WargaData } from "@/lib/types";
+import { CountUp } from "@/components/count-up";
+import { DirectionalMotion } from "@/components/directional-motion";
 
 type Notice = { message: string; tone: "success" | "error" } | null;
 
@@ -102,7 +104,7 @@ export function WargaClient() {
 
   return (
     <div className="portal-content">
-      <PageHeader
+      <DirectionalMotion direction="up"><PageHeader
         title="Data Warga & Kartu Keluarga"
         description="Kelola data keluarga, status domisili, dan verifikasi dokumen warga."
         actions={
@@ -119,9 +121,9 @@ export function WargaClient() {
             </button>
           </>
         }
-      />
+      /></DirectionalMotion>
 
-      {loading && <div className="callout shadow-sm rounded-xl">Memuat data warga…</div>}
+      {loading && <div></div>}
       {error && (
         <div className="callout error-callout shadow-sm rounded-xl">
           {error}
@@ -139,16 +141,16 @@ export function WargaClient() {
               ["Total jiwa", data.stats.totalJiwa],
               ["Warga tetap", data.stats.wargaTetap],
               ["Verifikasi", `${(data.stats.verifikasiPersen * 100).toFixed(0)}%`],
-            ].map(([label, value]) => (
-              <article className="stat-card" key={label}>
+            ].map(([label, value], index) => (
+              <DirectionalMotion as="article" direction={(["left", "up", "down", "right"] as const)[index]} delay={index * 0.035} className="stat-card" key={label}>
                 <span className="stat-label">{label}</span>
-                <strong>{value}</strong>
-              </article>
+                <strong>{index === 3 ? <CountUp value={data.stats.verifikasiPersen * 100} format="percent" /> : <CountUp value={Number(value)} />}</strong>
+              </DirectionalMotion>
             ))}
           </div>
 
         
-            <section className="table-toolbar">
+            <DirectionalMotion as="section" direction="left" className="table-toolbar">
               <div>
                 <h2>Direktori keluarga</h2>
                 <p className="muted">Data kependudukan warga RT 04 / RW 08</p>
@@ -158,9 +160,9 @@ export function WargaClient() {
                 <span className="sr-only">Cari data keluarga</span>
                 <input ref={searchRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nama, NIK, nomor KK, atau alamat" />
               </label>
-            </section>
+            </DirectionalMotion>
 
-            <div className="table-scroll">
+            <DirectionalMotion direction="right" className="table-scroll">
               <table>
                 <thead className="text-white">
                   <tr>
@@ -211,7 +213,7 @@ export function WargaClient() {
                   )}
                 </tbody>
               </table>
-            </div>
+            </DirectionalMotion>
         </>
       )}
 

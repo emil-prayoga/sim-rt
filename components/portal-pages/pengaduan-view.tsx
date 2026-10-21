@@ -9,6 +9,8 @@ import { aduanSchema, zodFieldErrors } from "@/lib/validation";
 import type { Aduan, AduanStatus } from "@/lib/types";
 import { PageHeader } from "@/components/page-header";
 import { Modal } from "@/components/modal";
+import { CountUp } from "@/components/count-up";
+import { DirectionalMotion } from "@/components/directional-motion";
 
 const kosong: { judul: string; deskripsi: string; pelapor: string; lokasi: string; status: AduanStatus | "" } = {
   judul: "",
@@ -132,7 +134,7 @@ export function ComplaintsPage() {
     <div className="portal-content complaint-page">
 
       {/* Page Header Komponen Utama */}
-      <PageHeader
+      <DirectionalMotion direction="up"><PageHeader
         title="Pengaduan Warga Desa dan Warta"
         description="Tindak lanjuti laporan warga dan kelola informasi yang dibagikan ke lingkungan RT."
         actions={
@@ -149,17 +151,17 @@ export function ComplaintsPage() {
             </button>
           </>
         }
-      />
+      /></DirectionalMotion>
 
       {/* Grid Statistik (Article Warna Putih) */}
-      <div className="complaint-metrics" role="group" aria-label="Ringkasan pengaduan">
-        <div className="flex flex-col"><span>Total laporan masuk</span><strong>{safeItems.length}</strong></div>
-        <div className="flex flex-col"><span>Sedang ditindaklanjuti</span><strong>{active}</strong></div>
-        <div className="flex flex-col"><span>Laporan selesai</span><strong>{selesai}</strong></div>
+      <div className="stat-grid compact-stats three-stats" role="group" aria-label="Ringkasan pengaduan">
+        <DirectionalMotion as="article" direction="left" className="stat-card"><span className="stat-label">Total laporan masuk</span><strong><CountUp value={safeItems.length} /></strong></DirectionalMotion>
+        <DirectionalMotion as="article" direction="up" delay={0.04} className="stat-card"><span className="stat-label">Sedang ditindaklanjuti</span><strong><CountUp value={active} /></strong></DirectionalMotion>
+        <DirectionalMotion as="article" direction="right" delay={0.08} className="stat-card"><span className="stat-label">Laporan selesai</span><strong><CountUp value={selesai} /></strong></DirectionalMotion>
       </div>
 
       {/* Bar Filter & Pencarian */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <DirectionalMotion direction="left" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="filter-tabs" role="group" aria-label="Filter status pengaduan">
           <button
             onClick={() => setFilterTab("semua")}
@@ -195,7 +197,7 @@ export function ComplaintsPage() {
             className="w-full bg-white shadow-xs text-xs rounded-xl pl-8 pr-3 py-2 text-[#1A2721] placeholder-[#5E3122]/50 outline-none border-0 focus:ring-1 focus:ring-[#1D4533]"
           />
         </div>
-      </div>
+      </DirectionalMotion>
 
       {/* Notifikasi */}
       {notice && (
@@ -218,14 +220,14 @@ export function ComplaintsPage() {
       {/* Layout Utama 2 Kolom (Section Warna Putih) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Kolom Kiri: Antrean Laporan Warga */}
-        <section className="complaint-queue">
+        <DirectionalMotion as="section" direction="left" className="complaint-queue">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-sm font-bold text-[#1A2721]">Antrean Laporan Warga</h2>
             <span className="text-[11px] text-[#5E3122]/70">Diperbarui otomatis</span>
           </div>
 
           {loading ? (
-            <div className="bg-white shadow-xs rounded-2xl p-6 text-xs text-[#5E3122]/70 border-0">Memuat pengaduan…</div>
+            <div></div>
           ) : (
             <div className="complaint-list">
               {filteredItems.map((item) => {
@@ -262,10 +264,10 @@ export function ComplaintsPage() {
               )}
             </div>
           )}
-        </section>
+        </DirectionalMotion>
 
         {/* Kolom Kanan: Disposisi Aduan & Warta Siaran */}
-        <section className="complaint-detail-column">
+        <DirectionalMotion as="section" direction="right" className="complaint-detail-column">
           {/* Panel Disposisi Aduan RT */}
           <div className="disposition-panel">
             <div className="disposition-heading">
@@ -312,7 +314,7 @@ export function ComplaintsPage() {
               </button>
             </div>
           </div>
-        </section>
+        </DirectionalMotion>
       </div>
 
       {showForm && (

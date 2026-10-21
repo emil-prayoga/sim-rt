@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowRight,
   Eye,
@@ -15,6 +16,7 @@ import {
 import { isSupabaseConfigured } from "@/lib/env";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { loginSchema, zodFieldErrors } from "@/lib/validation";
+import { DirectionalMotion } from "@/components/directional-motion";
 
 type AccessState =
   | "loading"
@@ -28,6 +30,8 @@ const DEMO_EMAIL = "admin@sirt.demo";
 const DEMO_PASSWORD = "SirtDemo04!";
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [access, setAccess] = useState<AccessState>(() =>
     isSupabaseConfigured() ? "loading" : "demo-loading"
   );
@@ -35,6 +39,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const [message, setMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -77,6 +82,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     setBusy(true);
     setMessage("");
     setFieldErrors({});
+    setRedirecting(pathname !== "/");
 
     if (!supabase) {
       if (
@@ -84,9 +90,13 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         parsed.data.password === DEMO_PASSWORD
       ) {
         window.sessionStorage.setItem("sirt-demo-session", "active");
+        window.sessionStorage.setItem("sirt-sidebar-entry", "pending");
+        window.sessionStorage.setItem("sirt-header-entry", "pending");
         setAccess("demo-signed-in");
+        router.replace("/");
       } else {
         setMessage("Akun demo tidak cocok. Gunakan kredensial demo yang tertera.");
+        setRedirecting(false);
       }
       setBusy(false);
       return;
@@ -94,28 +104,31 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     if (error) setMessage("Email atau kata sandi salah, atau akun belum terdaftar.");
+    else {
+      window.sessionStorage.setItem("sirt-sidebar-entry", "pending");
+      window.sessionStorage.setItem("sirt-header-entry", "pending");
+      setAccess("signed-in");
+      router.replace("/");
+    }
+    if (error) setRedirecting(false);
     setBusy(false);
   }
 
-  if (access === "demo-signed-in" || access === "signed-in") {
+  if ((access === "demo-signed-in" || access === "signed-in") && !redirecting) {
     return <>{children}</>;
   }
 
-  if (access === "loading" || access === "demo-loading") {
+  if (redirecting || access === "loading" || access === "demo-loading") {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="flex items-center gap-3 text-[#1D4533] font-semibold text-lg bg-white px-6 py-4 rounded-2xl shadow-md">
-          <ShieldCheck size={24} />
-          Memeriksa sesi admin…
-        </div>
       </main>
     );
   }
 
   return (
     <main className="auth-page min-h-screen w-full flex flex-col md:flex-row bg-background font-sans">
-      {/* SISI KIRI - Hero Section (Marun) */}
-      <section className="auth-hero-panel md:w-1/2 bg-[#1D4533] rounded-xl md:rounded-none text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden min-h-[400px] md:min-h-screen">
+      {/* SISI KIRI - Hero Section */}
+      <DirectionalMotion as="section" direction="left" className="auth-hero-panel md:w-1/2 bg-[#1D4533] rounded-b-xl md:rounded-none text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden min-h-[400px] md:min-h-screen">
         {/* Pattern Dots Atas Kiri */}
         <div className="absolute top-8 left-8 opacity-20 pointer-events-none">
           <div className="grid grid-cols-6 gap-2">
@@ -188,10 +201,10 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
             <span className="text-xs font-medium text-emerald-100">Aman Terlindungi</span>
           </div>
         </div>
-      </section>
+      </DirectionalMotion>
 
       {/* SISI KANAN - Form Card (Krem/Putih) */}
-      <section className="md:w-1/2 p-6 md:p-12 flex items-center justify-center">
+      <DirectionalMotion as="section" direction="right" delay={0.06} className="md:w-1/2 p-6 md:p-12 flex items-center justify-center">
         <div className="login-panel w-full max-w-md bg-white rounded-3xl p-8 md:p-10 shadow-xl shadow-black/5 border border-black/5">
           <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-[#1D4533] tracking-tight">
@@ -311,7 +324,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
             </span>
           </p>
         </div>
-      </section>
+      </DirectionalMotion>
     </main>
   );
 }

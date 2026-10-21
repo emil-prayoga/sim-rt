@@ -7,6 +7,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { savePengaturanRT } from "@/lib/mutations";
 import { pengaturanRTSchema, zodFieldErrors } from "@/lib/validation";
 import { PageHeader } from "@/components/page-header";
+import { DirectionalMotion } from "@/components/directional-motion";
 const credentials = { email: "admin@sirt.demo", password: "SirtDemo04!" };
 const keys: Array<[keyof PengaturanRT, string]> = [
   ["namaWilayah", "Nama wilayah"],
@@ -78,10 +79,10 @@ export function SettingsPage() {
 
   return (
     <div className="portal-content">
-      <PageHeader
+      <DirectionalMotion direction="up"><PageHeader
         title="Sistem dan Tata Kelola"
         description="Atur profil wilayah RT dan tinjau informasi akses pengelola."
-      />
+      /></DirectionalMotion>
       {error && (
         <div className="callout error-callout shadow-sm rounded-xl border-0" role="alert">
           {error}
@@ -93,7 +94,7 @@ export function SettingsPage() {
         </div>
       )}
       <div className="settings-layout">
-        <section className="panel settings-panel settings-profile">
+        <DirectionalMotion as="section" direction="left" className="panel settings-panel settings-profile">
           <div className="panel-title border-b-gray-100 border-b">
             <h2 className="mb-4">
               <UserRound size={18} /> Profil wilayah RT
@@ -101,7 +102,7 @@ export function SettingsPage() {
             <span>Disimpan di Database</span>
           </div>
           {loading ? (
-            <p className="muted">Memuat pengaturan…</p>
+            <p></p>
           ) : (
             <form ref={formRef} onSubmit={(event) => void submit(event)} noValidate className="settings-form -mt-4">
               <fieldset className="settings-field-group">
@@ -142,9 +143,9 @@ export function SettingsPage() {
               </div>
             </form>
           )}
-        </section>
+        </DirectionalMotion>
 
-        <section className="panel settings-panel settings-access">
+        <DirectionalMotion as="section" direction="right" className="panel settings-panel settings-access">
           <div className="panel-title">
             <h2>
               <ShieldCheck size={18} /> Akun dan akses
@@ -177,7 +178,7 @@ export function SettingsPage() {
               Service role hanya digunakan skrip provisioning lokal.
             </span>
           </div>
-        </section>
+        </DirectionalMotion>
       </div>
     </div>
   );

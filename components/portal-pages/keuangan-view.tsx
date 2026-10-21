@@ -11,6 +11,8 @@ import { catatTransaksiSchema, zodFieldErrors } from "@/lib/validation";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { downloadCsv } from "@/lib/csv";
 import type { KeuanganData, KasTransaksi } from "@/lib/types";
+import { CountUp } from "@/components/count-up";
+import { DirectionalMotion } from "@/components/directional-motion";
 
 type Notice = { message: string; tone: "success" | "error" } | null;
 
@@ -84,7 +86,7 @@ export function KeuanganClient() {
 
   return (
     <div className="portal-content">
-      <PageHeader 
+      <DirectionalMotion direction="up"><PageHeader
         title="Keuangan & Rekap Iuran Bulanan" 
         description="Catat pemasukan dan pengeluaran, lalu pantau pembayaran iuran warga."
         actions={
@@ -104,9 +106,9 @@ export function KeuanganClient() {
             </button>
           </div>
         } 
-      />
+      /></DirectionalMotion>
 
-      {loading && <div className="p-4 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant text-sm shadow-sm">Memuat keuangan…</div>}
+      {loading && <div></div>}
       
       {error && (
         <div className="p-4 rounded-xl bg-error-container text-on-error-container text-sm flex items-center justify-between shadow-sm">
@@ -160,27 +162,27 @@ export function KeuanganClient() {
 }
 
 function FinanceView({ data, edit, remove }: { data: KeuanganData; edit: (x: KasTransaksi) => void; remove: (x: KasTransaksi) => void }) {
-  const stats = [
-    ["Saldo kas", formatRupiah(data.saldo)],
-    ["Pemasukan bulan ini", formatRupiah(data.pemasukan)],
-    ["Pengeluaran bulan ini", formatRupiah(data.pengeluaran)],
-    ["Tunggakan iuran", formatRupiah(data.tunggakan)]
+  const stats: [string, number][] = [
+    ["Saldo kas", data.saldo],
+    ["Pemasukan bulan ini", data.pemasukan],
+    ["Pengeluaran bulan ini", data.pengeluaran],
+    ["Tunggakan iuran", data.tunggakan]
   ];
   const max = Math.max(...data.trend.map((x) => Math.max(x.masuk, x.keluar)), 1);
 
   return (
     <div className="finance-overview">
-      <div className="finance-metrics" role="group" aria-label="Ringkasan keuangan">
-        {stats.map(([l, v]) => (
-          <article key={l}>
-            <span>{l}</span>
-            <strong>{v}</strong>
-          </article>
+      <div className="stat-grid compact-stats" role="group" aria-label="Ringkasan keuangan">
+        {stats.map(([l, v], index) => (
+          <DirectionalMotion as="article" direction={(["left", "up", "down", "right"] as const)[index]} delay={index * 0.035} className="stat-card" key={l}>
+            <span className="stat-label">{l}</span>
+            <strong><CountUp value={v} format="rupiah" /></strong>
+          </DirectionalMotion>
         ))}
       </div>
 
       <div className="finance-columns">
-        <section className="finance-panel dues-panel">
+        <DirectionalMotion as="section" direction="left" className="finance-panel dues-panel">
           <div className="flex items-center justify-between pb-3 border-b border-outline-variant/20">
             <h2 className="text-base font-bold text-on-surface">Rekap iuran · {data.periodeLabel}</h2>
             <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container">{data.tunggakanKk} KK belum lunas</span>
@@ -206,9 +208,9 @@ function FinanceView({ data, edit, remove }: { data: KeuanganData; edit: (x: Kas
               </div>
             ))}
           </div>
-        </section>
+        </DirectionalMotion>
 
-        <section className="finance-panel ledger-panel">
+        <DirectionalMotion as="section" direction="right" className="finance-panel ledger-panel">
           <div className="flex items-center justify-between pb-3 border-b border-outline-variant/20">
             <h2 className="text-base font-bold text-on-surface">Buku kas</h2>
             <span className="text-xs font-medium text-on-surface-variant">{data.kas.length} transaksi</span>
@@ -233,7 +235,7 @@ function FinanceView({ data, edit, remove }: { data: KeuanganData; edit: (x: Kas
             ))}
             {!data.kas.length && <div className="py-8 text-center text-xs text-on-surface-variant bg-surface-container-low rounded-xl border border-dashed border-outline-variant/40">Belum ada transaksi kas.</div>}
           </div>
-        </section>
+        </DirectionalMotion>
       </div>
     </div>
   );
